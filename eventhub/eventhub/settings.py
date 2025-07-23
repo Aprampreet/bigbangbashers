@@ -112,15 +112,10 @@ WSGI_APPLICATION = 'eventhub.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'eventdb',
-        'USER': 'eventuser',
-        'PASSWORD': 'bigbangbashers-harkaran-main',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
 
 
 # Password validation
