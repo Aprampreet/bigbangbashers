@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+
+{% block title %}Registrations for {{ event.name }}{% endblock %}
+
+{% block content %}
+<div class="bg-black min-h-screen">
+<div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+    
+    <div class="pb-8 border-b border-gray-800">
+        <h1 class="text-4xl md:text-5xl font-bold font-heading tracking-wide text-brand-yellow text-center md:text-left">Registrations</h1>
+        <p class="mt-1 text-lg text-gray-400 text-center md:text-left">For event: <span class="font-bold text-white">{{ event.name }}</span></p>
+
+        <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-gray-800 p-6 rounded-xl border border-gray-700">
+                <p class="text-sm font-medium text-gray-400">Total Registrations</p>
+                <p class="text-3xl font-bold text-white">{{ registrations.count }}</p>
+            </div>
+            <div class="bg-gray-800 p-6 rounded-xl border border-gray-700">
+                <p class="text-sm font-medium text-gray-400">Ticket Price</p>
+                <p class="text-3xl font-bold text-white">₹{{ event.ticket_price|floatformat:0 }}</p>
+            </div>
+            <div class="bg-gray-800 p-6 rounded-xl border border-gray-700">
+                <p class="text-sm font-medium text-gray-400">Total Revenue</p>
+                <p class="text-3xl font-bold text-green-400">₹{{ event.total_revenue|floatformat:0 }}</p>
+            </div>
+        </div>
+    </div>
+    
+    {% if registrations %}
+    <div class="mt-8 md:flex justify-between items-center">
+        
+        <div class="mt-4 md:mt-0">
+             <a href="{% url 'export_event_registrations_csv' event.pk %}" class="inline-flex items-center px-5 py-2.5 border border-gray-600 text-sm font-bold rounded-full text-gray-300 hover:border-white hover:text-white transition">
+                <i class="fas fa-file-csv mr-2"></i> Export to CSV
+            </a>
+        </div>
+    </div>
+
+    <div class="mt-6 flex flex-col">
+        <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+            <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                <div class="shadow-xl overflow-hidden border border-gray-700 rounded-lg">
+                    <table class="min-w-full divide-y divide-gray-700" id="registrationsTable">
+                        <thead class="bg-gray-800 sticky top-0 z-10">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-300 uppercase tracking-wider">Registrant Info</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-300 uppercase tracking-wider">Phone Number</th>
+
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-300 uppercase tracking-wider">College Name</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-300 uppercase tracking-wider">Academic Details</th>
+                                <th scope="col" class="px-6 py-3 text-center text-xs font-bold text-gray-300 uppercase tracking-wider">Hostler</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-300 uppercase tracking-wider">Registered On</th>
+                                <th scope="col" class="px-6 py-3 text-center text-xs font-bold text-gray-300 uppercase tracking-wider">Payment</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-gray-900 divide-y divide-gray-700">
+                            {% for registration in registrations %}
+                            <tr class="hover:bg-gray-800/50 transition duration-150 odd:bg-gray-800/20 registration-row">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-white">{{ registration.Student_name }}</div>
+                                    <div class="text-sm text-gray-400">{{ registration.email }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-400">{{ registration.phone }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">{{ registration.collage_name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
+                                    <div>{{ registration.department }}</div>
+                                    <div>{{ registration.course }} (Year: {{ registration.year }})</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-center">
+                                    {% if registration.is_hostler %}
+                                        <i class="fas fa-check-circle text-green-400" title="Yes"></i>
+                                    {% else %}
+                                        <i class="fas fa-times-circle text-red-400" title="No"></i>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">{{ registration.registration_date|date:"M d, Y, h:i A" }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-center">
+                                    <a href="{{ registration.payment_screenshot.url }}" target="_blank" class="text-brand-yellow hover:underline">View Screenshot</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-24 bg-gray-900 rounded-xl border-2 border-dashed border-gray-800 mt-10">
+      <i class="fas fa-users text-5xl text-gray-600 mb-4"></i>
+      <h2 class="text-2xl font-semibold text-white">No Registrations Yet</h2>
+      <p class="mt-2 text-gray-400">Your event is live! Share the link to start gathering participants.</p>
+    </div>
+    {% endif %}
+
+    <div class="mt-10 text-center">
+        <a href="{% url 'admin_my_events' %}" class="inline-flex items-center px-8 py-3 border border-brand-yellow text-base font-bold rounded-full shadow-lg text-brand-yellow bg-transparent hover:bg-brand-yellow hover:text-gray-900 transition-colors duration-300">
+            <i class="fas fa-arrow-left mr-3"></i> Back to My Events
+        </a>
+    </div>
+</div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const table = document.getElementById('registrationsTable');
+    if (!searchInput || !table) return;
+    
+    const rows = table.querySelectorAll('tbody .registration-row');
+
+    searchInput.addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        rows.forEach(row => {
+            const textContent = row.textContent.toLowerCase();
+            if (textContent.includes(searchTerm)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

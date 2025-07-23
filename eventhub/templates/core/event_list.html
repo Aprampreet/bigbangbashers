@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Events{% endblock %}
+
+{% block content %}
+<style>
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .animate-fade-in-up {
+      animation: fadeInUp 0.8s ease-out forwards;
+      opacity: 0;
+    }
+  }
+</style>
+
+<div class="bg-black">
+  <section class="bg-gray-950 py-16 md:py-20">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8">
+      <div class="md:flex md:items-center md:justify-between">
+        <div class="flex-1 min-w-0">
+          <h1 class="text-4xl md:text-5xl font-bold font-heading tracking-wide text-brand-yellow">Event Lineup</h1>
+          <p class="mt-2 text-lg text-gray-400">Discover our curated collection of upcoming events.</p>
+        </div>
+        {% if user.is_staff %}
+        <div class="mt-6 flex md:mt-0 md:ml-4">
+          <a href="{% url 'event_create' %}" class="w-full md:w-auto inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-bold rounded-full shadow-lg text-gray-900 bg-brand-yellow hover:bg-yellow-300 transition-all duration-300 transform hover:scale-105">
+            <i class="fas fa-plus-circle mr-3"></i> Host a New Event
+          </a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+
+  <div class="max-w-7xl mx-auto py-16 md:py-20 px-6 lg:px-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
+      
+      {% for event in events %}
+      <div class="group flex flex-col bg-gray-900 rounded-2xl overflow-hidden border border-gray-800 hover:border-brand-yellow/50 transition-all duration-300 transform hover:-translate-y-2 animate-fade-in-up">
+        
+        <div class="relative">
+          <img class="h-56 w-full object-cover group-hover:scale-105 transition-transform duration-500" src="{{ event.banner_image.url }}" alt="{{ event.name }} Banner">
+          <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+          
+          {% if event.is_finished %}
+            <span class="absolute top-3 right-3 bg-gray-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Finished</span>
+          {% elif not event.is_registration_open %}
+            <span class="absolute top-3 right-3 bg-red-800 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Closed</span>
+          {% else %}
+            <span class="absolute top-3 right-3 bg-green-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider animate-pulse">Open</span>
+          {% endif %}
+        </div>
+
+        <div class="p-6 flex flex-col flex-grow">
+          <h3 class="text-2xl font-bold font-heading tracking-wide text-white truncate">{{ event.name }}</h3>
+          <div class="mt-2 flex items-center gap-4 text-gray-400 text-sm">
+              <div class="flex items-center gap-2">
+                <i class="far fa-calendar-alt text-brand-yellow"></i>
+                <span>{{ event.date|date:"M d, Y" }}</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <i class="fas fa-map-marker-alt text-brand-yellow"></i>
+                <span class="truncate">{{ event.venue }}</span>
+              </div>
+          </div>
+          
+          <div class="my-4 pt-4 border-t border-gray-800">
+             <h4 class="text-sm font-bold text-gray-400 uppercase tracking-wider">Highlights</h4>
+             <div class="mt-2 text-gray-300 text-sm space-y-1">
+                {{ event.key_points|linebreaksbr|truncatewords_html:15|safe }}
+             </div>
+          </div>
+
+          <div class="mt-auto pt-4 border-t border-gray-800">
+            {% if event.is_registration_open %}
+              <p class="text-xs text-gray-400 mb-2">Register by: <span class="font-bold text-gray-200">{{ event.registration_end|date:"M d, Y" }}</span></p>
+            {% else %}
+              <p class="text-xs text-gray-400 mb-2">
+                {% if event.is_finished %}
+                  Event Finished
+                {% else %}
+                  Registration Closed
+                {% endif %}
+              </p>
+            {% endif %}
+            <div class="flex items-center justify-between">
+              <p class="text-xl font-bold text-white">₹{{ event.ticket_price|floatformat:0 }}</p>
+              <a href="{% url 'event_detail' event.pk %}" class="inline-block font-bold text-brand-yellow hover:text-yellow-300 transition-colors">
+                  Details &rarr;
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="col-span-full text-center py-24 bg-gray-900 rounded-xl border border-dashed border-gray-700">
+          <i class="fas fa-calendar-times text-5xl text-gray-600 mb-4"></i>
+          <h2 class="text-2xl font-semibold text-white">No Events Scheduled</h2>
+          <p class="mt-2 text-gray-400">Please check back later for our next electrifying event!</p>
+      </div>
+      {% endfor %}
+
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const animatedElements = document.querySelectorAll('.animate-fade-in-up');
+    animatedElements.forEach((el, index) => {
+        el.style.animationDelay = `${index * 100}ms`; // Stagger by 100ms
+    });
+});
+</script>
+{% endblock %}

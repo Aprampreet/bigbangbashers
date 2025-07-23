@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}My Registrations{% endblock %}
+
+{% block content %}
+<div class="bg-black min-h-screen">
+<div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+    
+    <div class="pb-10 text-center">
+        <h1 class="text-4xl md:text-5xl font-bold font-heading tracking-wide text-brand-yellow">My Event Registrations</h1>
+        <p class="mt-2 text-lg text-gray-400">Your personal hub for all upcoming events you've joined.</p>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {% for registration in registrations %}
+        <div class="group bg-gray-900 rounded-2xl overflow-hidden border border-gray-800 flex flex-col transition-all duration-300 hover:border-brand-yellow/50 hover:-translate-y-1">
+            
+            <div class="relative">
+                <a href="{% url 'event_detail' registration.event.pk %}" class="block h-48 w-full">
+                    <img class="h-full w-full object-cover" src="{{ registration.event.banner_image.url }}" alt="{{ registration.event.name }} Banner">
+                </a>
+            </div>
+
+            <div class="p-6 flex flex-col flex-grow">
+                <h3 class="text-2xl font-bold font-heading tracking-wide text-white">{{ registration.event.name }}</h3>
+                <div class="mt-2 space-y-2 text-gray-400 text-sm flex-grow">
+                    <div class="flex items-center gap-2">
+                        <i class="far fa-calendar-alt text-brand-yellow w-4 text-center"></i>
+                        <span>{{ registration.event.date|date:"F d, Y" }} at {{ registration.event.time|time:"h:i A" }}</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-map-marker-alt text-brand-yellow w-4 text-center"></i>
+                        <span class="truncate">{{ registration.event.venue }}</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-user-circle text-brand-yellow w-4 text-center"></i>
+                        <span class="truncate">{{ registration.Student_name }}</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-university text-brand-yellow w-4 text-center"></i>
+                        <span class="truncate">{{ registration.collage_name }}</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-house-user text-brand-yellow w-4 text-center"></i>
+                        <span class="truncate">{% if registration.is_hostler %}Hostler{% else %}Day Scholar{% endif %}</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="fab fa-whatsapp text-brand-yellow w-4 text-center"></i>
+                        <a class="truncate" href="{{registration.event.whatsapp_group}}"> Whatsapp Group</a>
+                    </div>
+                </div>
+
+                <div class="mt-4 text-center flex-shrink-0">
+                    {% if registration.payment_screenshot %}
+                        <a href="{{ registration.payment_screenshot.url }}" target="_blank" class="text-sm text-gray-400 hover:text-brand-yellow transition">
+                            View My Payment Screenshot
+                        </a>
+                    {% else %}
+                        <span class="text-sm text-gray-600">No payment screenshot</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full text-center py-24 bg-gray-900 rounded-xl border-2 border-dashed border-gray-800">
+            <i class="fas fa-ticket-alt text-5xl text-gray-600 mb-4"></i>
+            <h2 class="text-2xl font-semibold text-white">Your wallet is empty!</h2>
+            <p class="mt-2 text-gray-400 max-w-md mx-auto">You haven't registered for any events yet. Find an event and join the bash!</p>
+            <div class="mt-8">
+                <a href="{% url 'event_list' %}" class="inline-flex items-center px-8 py-3 border border-transparent text-base font-bold rounded-full shadow-lg text-gray-900 bg-brand-yellow hover:bg-yellow-300 transition duration-300 transform hover:scale-105">
+                    <i class="fas fa-calendar-alt mr-3"></i> Discover Events
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+</div>
+{% endblock %}

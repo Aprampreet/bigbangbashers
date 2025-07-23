@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block title %}{{ event.name }}{% endblock %}
+
+{% block content %}
+<style>
+  @keyframes kenBurns {
+    0% { transform: scale(1.05) translate(0, 0); }
+    100% { transform: scale(1.15) translate(-1%, -1%); }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .animate-ken-burns {
+      animation: kenBurns 30s infinite alternate ease-in-out;
+    }
+  }
+</style>
+
+<div class="relative bg-black overflow-hidden">
+    <div class="h-[50vh] min-h-[400px]">
+        <img class="w-full h-full object-cover object-center opacity-40 animate-ken-burns" src="{{ event.banner_image.url }}" alt="{{ event.name }} Banner">
+    </div>
+    <div class="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/70 to-transparent"></div>
+    <div class="absolute bottom-0 left-0 right-0 p-8 md:px-12 md:pb-28 text-white z-10">
+        <h1 class="text-5xl md:text-7xl font-extrabold font-heading tracking-wider text-white drop-shadow-lg">{{ event.name }}</h1>
+        <p class="text-lg md:text-xl text-gray-300 flex items-center mt-3">
+             Organized by <span class="font-semibold text-brand-yellow ml-2">{{ event.admin.username }} </span>
+        </p>
+    </div>
+</div>
+
+<div class="bg-gray-900 border-y border-gray-800">
+    <div class="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-px">
+        <div class="text-center p-6">
+            <i class="fas fa-calendar-day text-3xl text-brand-yellow mb-2"></i>
+            <h4 class="font-bold text-white text-lg">{{ event.date|date:"F d, Y" }}</h4>
+            <p class="text-sm text-gray-400">Event Date</p>
+        </div>
+        <div class="text-center p-6">
+            <i class="fas fa-clock text-3xl text-brand-yellow mb-2"></i>
+            <h4 class="font-bold text-white text-lg">{{ event.time|time:"h:i A" }}</h4>
+            <p class="text-sm text-gray-400">Starts At</p>
+        </div>
+        <div class="text-center p-6">
+            <i class="fas fa-map-marked-alt text-3xl text-brand-yellow mb-2"></i>
+            <h4 class="font-bold text-white text-lg truncate">{{ event.venue }}</h4>
+            <p class="text-sm text-gray-400">Venue</p>
+        </div>
+        <div class="text-center p-6">
+            <i class="fas fa-money-bill-wave text-3xl text-brand-yellow mb-2"></i>
+            <h4 class="font-bold text-white text-lg">₹{{ event.ticket_price|floatformat:0 }}</h4>
+            <p class="text-sm text-gray-400">Entry Ticket</p>
+        </div>
+    </div>
+</div>
+
+
+<div class="bg-gray-950 py-16 sm:py-24">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="lg:grid lg:grid-cols-3 lg:gap-12">
+            
+            <div class="lg:col-span-2 text-gray-300 space-y-16">
+
+
+
+                <div>
+                    <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-brand-yellow pl-4">About This Event</h2>
+                    {% if event.key_points %}
+                      <div class="bg-gray-800/50 rounded-xl p-6 space-y-4 text-base md:text-lg text-gray-300">
+                        {% for point in event.key_points|split_lines %}
+                          {% if ":" in point %}
+                            {% with point|cut:" "|linebreaksbr as clean_point %}
+                            <div class="flex items-start">
+                              <span class="flex-shrink-0 w-6 h-6 mt-1 mr-3 rounded-full bg-brand-yellow/20 text-brand-yellow flex items-center justify-center">
+                                <i class="fas fa-check text-xs"></i>
+                              </span>
+                              <p class="leading-relaxed">
+                                <strong class="text-gray-100 font-semibold">{{ point|cut:" "|slice:":0" }}</strong>{{ point|slice:"1:" }}
+                              </p>
+                            </div>
+                            {% endwith %}
+                          {% else %}
+                            <div class="flex items-start">
+                              <span class="flex-shrink-0 w-6 h-6 mt-1 mr-3 rounded-full bg-brand-yellow/20 text-brand-yellow flex items-center justify-center">
+                                <i class="fas fa-check text-xs"></i>
+                              </span>
+                              <p class="leading-relaxed">{{ point }}</p>
+                            </div>
+                          {% endif %}
+                        {% endfor %}
+                      </div>
+                    {% else %}
+                      <p class="text-lg text-gray-400">No detailed description available, but expect an amazing experience!</p>
+                    {% endif %}
+                  </div>
+                  
+                  
+                  
+
+                
+                
+                <div>
+                    {% if event.venue != 'Will be Disclosed'%}
+                     <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-brand-yellow pl-4">Location</h2>
+                     <a href="https://www.google.com/maps/search/?api=1&query={{ event.venue|urlencode }}" 
+                        target="_blank" rel="noopener noreferrer"
+                        class="group mt-4 flex w-full items-center justify-between bg-gray-800/50 p-6 rounded-xl border border-gray-700 hover:border-brand-yellow transition-all duration-300">
+                        <div>
+                            <p class="font-bold text-white text-xl">{{ event.venue }}</p>
+                            <p class="text-sm text-gray-400">Click to view location on Google Maps</p>
+                        </div>
+                        <i class="fas fa-external-link-alt text-2xl text-gray-500 group-hover:text-brand-yellow transition-colors duration-300"></i>
+                     </a>
+                     {%else%}
+                     <h2 class="text-3xl font-bold text-white mb-6 border-l-4 border-brand-yellow pl-4">Location</h2>
+                     <div href="https://www.google.com/maps/search/?api=1&query={{ event.venue|urlencode }}" 
+                        target="_blank" rel="noopener noreferrer"
+                        class="group mt-4 flex w-full items-center justify-between bg-gray-800/50 p-6 rounded-xl border border-gray-700 hover:border-brand-yellow transition-all duration-300">
+                        <div>
+                            <p class="font-bold text-white text-xl">{{ event.venue }}</p>
+                            <p class="text-sm text-gray-400">Check Emails and Whatsapp Group for more details</p>
+                        </div>
+                    </div>
+                     {%endif%}
+                </div>
+            </div>
+
+            <div class="mt-12 lg:mt-0 lg:col-span-1">
+                <div class="sticky top-28">
+                    <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl shadow-xl p-6 text-gray-200 border border-gray-700">
+                        <h3 class="text-2xl font-bold text-white mb-5 text-center">Get Your Ticket</h3>
+                        
+                        <div id="countdown" class="text-center mb-6">
+                            {% if event.is_finished %}
+                                <p class="text-xl font-bold text-gray-400">This event has finished.</p>
+                            {% elif not is_registration_open %}
+                                <p class="text-xl font-bold text-red-500">Registration is closed.</p>
+                            {% else %}
+                                <p class="text-sm font-semibold text-gray-400 mb-2 uppercase tracking-wider">Registration Closes In</p>
+                                <div class="flex justify-center items-center space-x-3 mt-2 text-3xl font-extrabold text-brand-yellow tabular-nums">
+                                    <div class="flex flex-col"><span id="days">00</span><span class="text-xs font-normal text-gray-400">Days</span></div>
+                                    <div class="text-gray-500">:</div>
+                                    <div class="flex flex-col"><span id="hours">00</span><span class="text-xs font-normal text-gray-400">Hrs</span></div>
+                                    <div class="text-gray-500">:</div>
+                                    <div class="flex flex-col"><span id="minutes">00</span><span class="text-xs font-normal text-gray-400">Mins</span></div>
+                                    <div class="text-gray-500">:</div>
+                                    <div class="flex flex-col"><span id="seconds">00</span><span class="text-xs font-normal text-gray-400">Secs</span></div>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        {% if is_registration_open %}
+                        <div class="border-t border-gray-700 pt-5 space-y-4">
+                            <a href="{% url 'event_register' event.pk %}" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-full shadow-lg text-gray-900 bg-brand-yellow hover:bg-yellow-300 transition duration-300 text-lg font-bold transform hover:scale-105">
+                                <i class="fas fa-ticket-alt mr-3"></i> Register Now
+                            </a>
+                         
+                        </div>
+                        {% endif %}
+                        <div class="mt-6 pt-6 border-t border-gray-700 text-center">
+                            <p class="text-sm text-gray-400 mb-3">Share with friends:</p>
+                            <div class="flex justify-center space-x-4">
+                                <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank" class="text-gray-400 hover:text-blue-500 transition-colors text-2xl"><i class="fab fa-facebook-square"></i></a>
+                                <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text=Check%20out%20this%20event:%20{{ event.name }}" target="_blank" class="text-gray-400 hover:text-blue-400 transition-colors text-2xl"><i class="fab fa-twitter-square"></i></a>
+                                <a href="{{event.whatsapp_group}}" target="_blank" class="text-gray-400 hover:text-green-500 transition-colors text-2xl"><i class="fab fa-whatsapp-square"></i></a>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 text-center">
+                            <a href="{% url 'event_list' %}" class="text-sm text-gray-400 hover:text-brand-yellow transition duration-200">
+                                <i class="fas fa-arrow-left mr-2"></i> Back to All Events
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if is_registration_open %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Your countdown timer script remains the same
+        const registrationEndDate = new Date('{{ registration_end_datetime_iso }}');
+        const countdownElement = document.getElementById('countdown');
+        if (!countdownElement) return;
+
+        const daysSpan = document.getElementById('days');
+        const hoursSpan = document.getElementById('hours');
+        const minutesSpan = document.getElementById('minutes');
+        const secondsSpan = document.getElementById('seconds');
+        
+        if (daysSpan) {
+            function updateCountdown() {
+                const now = new Date().getTime();
+                const distance = registrationEndDate - now;
+                if (distance < 0) {
+                    clearInterval(interval);
+                    if (countdownElement) {
+                        countdownElement.innerHTML = '<p class="text-xl font-bold text-red-500">Registration is closed.</p>';
+                    }
+                    return;
+                }
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                daysSpan.textContent = String(days).padStart(2, '0');
+                hoursSpan.textContent = String(hours).padStart(2, '0');
+                minutesSpan.textContent = String(minutes).padStart(2, '0');
+                secondsSpan.textContent = String(seconds).padStart(2, '0');
+            }
+            const interval = setInterval(updateCountdown, 1000);
+            updateCountdown();
+        }
+    });
+</script>
+{% endif %}
+{% endblock %}

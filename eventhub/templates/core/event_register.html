@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+{%load static%}
+
+{% load custom_filters %}
+
+{% block title %}Register for {{ event.name }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-950 py-12 sm:py-16">
+    <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <div class="text-center mb-10">
+            <h1 class="text-4xl md:text-5xl font-extrabold font-heading tracking-wider text-brand-yellow">Register for {{ event.name }}</h1>
+            <p class="mt-2 text-lg text-gray-400">Secure your spot for an unforgettable experience.</p>
+        </div>
+
+        <div x-data="{ step: 1, totalSteps: 3, paymentScreenshot: null }" class="bg-gray-900 rounded-2xl shadow-2xl border border-gray-800/50 p-8 md:p-10">
+            <div class="mb-8">
+                <div class="flex items-center justify-between text-sm font-bold text-gray-400">
+                    <span>Step <span x-text="step"></span> of <span x-text="totalSteps"></span></span>
+                    <div class="flex items-center">
+                        <template x-for="i in totalSteps">
+                            <div class="w-6 h-2 rounded-full mx-1" :class="i <= step ? 'bg-brand-yellow' : 'bg-gray-700'"></div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+
+            <form method="post" enctype="multipart/form-data" class="space-y-8">
+                {% csrf_token %}
+
+                <div x-show="step === 1" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-x-4" x-transition:enter-end="opacity-100 transform translate-x-0">
+                    <h2 class="text-2xl font-bold text-white mb-6">Your Details</h2>
+                    <div class="space-y-8">
+                        <div class="relative z-0 w-full group">
+                            {{ form.Student_name }}
+                            <label for="{{ form.Student_name.id_for_label }}" class="peer-focus:font-medium absolute text-sm text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-brand-yellow peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Full Name</label>
+                            {% if form.Student_name.errors %}<p class="mt-2 text-sm text-red-400"><i class="fas fa-exclamation-circle mr-1"></i>{{ form.Student_name.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div class="relative z-0 w-full group">
+                            {{ form.email }}
+                            <label for="{{ form.email.id_for_label }}" class="peer-focus:font-medium absolute text-sm text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-brand-yellow peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Email</label>
+                            {% if form.email.errors %}<p class="mt-2 text-sm text-red-400"><i class="fas fa-exclamation-circle mr-1"></i>{{ form.email.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div class="relative z-0 w-full group">
+                            {{ form.phone }}
+                            <label for="{{ form.phone.id_for_label }}" class="peer-focus:font-medium absolute text-sm text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-brand-yellow peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Phone Number</label>
+                            {% if form.phone.errors %}<p class="mt-2 text-sm text-red-400"><i class="fas fa-exclamation-circle mr-1"></i>{{ form.phone.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div class="relative z-0 w-full group">
+                            {{ form.collage_name }}
+                            <label for="{{ form.collage_name.id_for_label }}" class="peer-focus:font-medium absolute text-sm text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-brand-yellow peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">College Name</label>
+                            {% if form.collage_name.errors %}<p class="mt-2 text-sm text-red-400"><i class="fas fa-exclamation-circle mr-1"></i>{{ form.collage_name.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div class="relative z-0 w-full group">
+                            {{ form.department }}
+                            <label for="{{ form.department.id_for_label }}" class="peer-focus:font-medium absolute text-sm text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-brand-yellow peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Department</label>
+                            {% if form.department.errors %}<p class="mt-2 text-sm text-red-400"><i class="fas fa-exclamation-circle mr-1"></i>{{ form.department.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div class="relative z-0 w-full group">
+                            {{ form.year }}
+                            <label for="{{ form.year.id_for_label }}" class="peer-focus:font-medium absolute text-sm text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-brand-yellow peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Academic Year</label>
+                            {% if form.year.errors %}<p class="mt-2 text-sm text-red-400"><i class="fas fa-exclamation-circle mr-1"></i>{{ form.year.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div class="relative z-0 w-full group">
+                            {{ form.course }}
+                            <label for="{{ form.course.id_for_label }}" class="peer-focus:font-medium absolute text-sm text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-brand-yellow peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Course</label>
+                            {% if form.course.errors %}<p class="mt-2 text-sm text-red-400"><i class="fas fa-exclamation-circle mr-1"></i>{{ form.course.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div class="flex items-center mt-6">
+                            {{ form.is_hostler }}
+                            <label for="{{ form.is_hostler.id_for_label }}" class="ml-2 text-sm font-medium text-gray-300">Are you a hostler?</label>
+                            {% if form.is_hostler.errors %}<p class="mt-2 text-sm text-red-400"><i class="fas fa-exclamation-circle mr-1"></i>{{ form.is_hostler.errors.0 }}</p>{% endif %}
+                        </div>
+                    </div>
+                    <div class="mt-10">
+                        <button type="button" @click="step = 2" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-full shadow-lg text-lg font-bold text-gray-900 bg-brand-yellow hover:bg-yellow-300 transition duration-300 transform hover:scale-105">
+                            Next: Payment Details <i class="fas fa-arrow-right ml-3 self-center"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div x-show="step === 2" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-x-4" x-transition:enter-end="opacity-100 transform translate-x-0" style="display: none;">
+                    <h2 class="text-2xl font-bold text-white mb-6">Payment & Upload</h2>
+                    
+                    <div class="bg-gray-800 border border-gray-700 p-6 rounded-xl space-y-4">
+                <p class="text-gray-300 text-center">
+                    To finalize your spot, please pay 
+                    <strong class="font-bold text-white">₹{{ event.ticket_price|floatformat:0 }}</strong> 
+                    using the QR Code or Paytm link below.
+                </p>
+
+                <div class="flex flex-col md:flex-row items-center gap-6 pt-4">
+                    <!-- QR Code -->
+                    <div class="flex-shrink-0">
+                    <img 
+    src="{% static 'images/image.png' %}" 
+    alt="UPI QR Code"
+    class="rounded-lg border-4 border-white w-35 h-40 object-contain"
+/>
+
+
+
+
+                    </div>
+
+                    <!-- Payment Info -->
+                    <div class="text-center md:text-left space-y-2">
+                    <p class="font-semibold text-gray-400 text-lg">Scan or click to pay via UPI:</p>
+
+                    <div class="text-brand-yellow font-bold text-xl break-all">
+                        7855800005@ptaxis
+                    </div>
+                    <a 
+    href="{{ upi_link }}"
+    target="_blank" 
+    class="mt-3 inline-flex items-center px-5 py-2 border border-transparent text-sm font-bold rounded-full text-gray-900 bg-brand-yellow hover:bg-yellow-300 transition"
+>
+                    
+
+                        <i class="fas fa-external-link-alt mr-2"></i> Pay Now
+                    </a>
+                    </div>
+                </div>
+                </div>
+
+                    
+                    
+                    <div class="mt-8">
+                        <label class="block text-sm font-medium text-gray-300 mb-2" for="{{ form.payment_screenshot.id_for_label }}">Upload Payment Screenshot</label>
+                        {{ form.payment_screenshot }}
+                        <div x-show="paymentScreenshot" class="mt-2 text-sm text-green-400">
+                            <i class="fas fa-check-circle mr-1"></i> File selected: <span x-text="paymentScreenshot"></span>
+                        </div>
+                        {% if form.payment_screenshot.errors %}<p class="mt-2 text-sm text-red-400"><i class="fas fa-exclamation-circle mr-1"></i>{{ form.payment_screenshot.errors.0 }}</p>{% endif %}
+                    </div>
+
+                    <div class="mt-10 flex items-center justify-between gap-4">
+                        <button type="button" @click="step = 1" class="w-full flex justify-center py-3 px-4 border border-gray-600 rounded-full text-lg font-bold text-gray-300 hover:border-gray-400 hover:text-white transition">
+                            <i class="fas fa-arrow-left mr-3 self-center"></i> Back
+                        </button>
+                        <button type="button" @click="step = 3" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-full text-lg font-bold text-gray-900 bg-brand-yellow hover:bg-yellow-300 transition">
+                            Next: Confirm <i class="fas fa-arrow-right ml-3 self-center"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div x-show="step === 3" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-x-4" x-transition:enter-end="opacity-100 transform translate-x-0" style="display: none;">
+                    <h2 class="text-2xl font-bold text-white mb-6">Confirm Registration</h2>
+                    <div class="bg-gray-800 border border-gray-700 p-6 rounded-xl space-y-4">
+                        <p class="text-gray-300">You're almost there! Please review your details and confirm your registration. Your spot will be reserved upon successful verification of your payment.</p>
+                        <div x-show="paymentScreenshot" class="text-gray-300">
+                            <strong>Screenshot Uploaded:</strong> <span class="text-brand-yellow" x-text="paymentScreenshot"></span>
+                        </div>
+                    </div>
+                    <div class="mt-10 flex items-center justify-between gap-4">
+                        <button type="button" @click="step = 2" class="w-full flex justify-center py-3 px-4 border border-gray-600 rounded-full text-lg font-bold text-gray-300 hover:border-gray-400 hover:text-white transition">
+                            <i class="fas fa-arrow-left mr-3 self-center"></i> Back to Payment
+                        </button>
+                        <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-full shadow-lg text-lg font-bold text-gray-900 bg-green-500 hover:bg-green-400 transition transform hover:scale-105">
+                            <i class="fas fa-clipboard-check mr-3"></i> Complete Registration
+                        </button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+        
+        <div class="mt-8 text-center">
+            <a href="{% url 'event_detail' event.pk %}" class="text-sm text-gray-400 hover:text-brand-yellow transition duration-200">
+                <i class="fas fa-arrow-left mr-2"></i> Or go back to event details
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Floating label styles */
+    .group input:not(:placeholder-shown) + label,
+    .group input:focus + label {
+        transform: translateY(-1.5rem) scale(0.75);
+        color: #FACC15; /* brand-yellow */
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // This script helps the Alpine.js component know the name of the uploaded file.
+    const fileInput = document.getElementById('{{ form.payment_screenshot.id_for_label }}');
+    if (fileInput) {
+        fileInput.addEventListener('change', function() {
+            const componentEl = this.closest('[x-data]');
+            if (componentEl && componentEl.__x) {
+                componentEl.__x.getUnobservedData().paymentScreenshot = this.files.length > 0 ? this.files[0].name : null;
+            }
+        });
+    }
+
+    // This part is to automatically apply a CSS class to your form fields
+    // which makes the floating label work without needing to manually add classes in forms.py
+    document.querySelectorAll('form input[type="text"], form input[type="email"], form input[type="number"], form input[type="tel"], form textarea').forEach(function(el) {
+        el.classList.add('block', 'py-2.5', 'px-0', 'w-full', 'text-sm', 'text-gray-100', 'bg-transparent', 'border-0', 'border-b-2', 'border-gray-600', 'appearance-none', 'focus:outline-none', 'focus:ring-0', 'focus:border-brand-yellow', 'peer');
+        el.setAttribute('placeholder', ' '); // Important for the floating label effect
+    });
+});
+</script>
+{% endblock %}

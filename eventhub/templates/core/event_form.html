@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ form_title }}{% endblock %}
+
+{% block content %}
+<div class="bg-gray-950 py-12">
+  <div class="max-w-xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-8">
+      <h1 class="text-4xl md:text-5xl font-bold font-heading tracking-wide text-brand-yellow">
+        {{ form_title }}
+      </h1>
+      <p class="mt-2 text-lg text-gray-400">Fill out the details below.</p>
+    </div>
+
+    <div class="bg-gray-900 rounded-2xl shadow-2xl border border-gray-800/50">
+      <form method="post" enctype="multipart/form-data" class="p-8 md:p-10 space-y-6">
+        {% csrf_token %}
+
+        {% for field in form %}
+          <div>
+            <label for="{{ field.id_for_label }}"
+              class="block mb-2 text-sm font-medium text-gray-300">
+              {{ field.label }}
+            </label>
+
+            {{ field }}
+
+            {% if field.help_text %}
+              <p class="mt-1 text-xs text-gray-400">{{ field.help_text }}</p>
+            {% endif %}
+            {% for error in field.errors %}
+              <p class="mt-1 text-sm text-red-400 animate-pulse">
+                <i class="fas fa-exclamation-circle mr-1"></i>{{ error }}
+              </p>
+            {% endfor %}
+          </div>
+        {% endfor %}
+
+        <div class="pt-6 border-t border-gray-800 flex items-center justify-end gap-x-6">
+          <a href="{% url 'admin_my_events' %}" class="text-sm font-semibold text-gray-300 hover:text-white transition">Cancel</a>
+          <button type="submit" class="rounded-full bg-brand-yellow px-6 py-2.5 text-sm font-bold text-gray-900 shadow-sm hover:bg-yellow-300 transition transform hover:scale-105">
+            <i class="fas fa-save mr-2"></i> Save Event
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<style>
+  form input[type="text"],
+  form input[type="email"],
+  form input[type="tel"],
+  form input[type="number"],
+  form input[type="date"],
+  form input[type="time"],
+  form textarea {
+    display: block;
+    width: 100%;
+    background-color: #1F2937;
+    border: 1px solid #4B5563;
+    color: #F9FAFB;
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+    transition: all 0.2s ease-in-out;
+  }
+
+  form input:focus,
+  form textarea:focus {
+    border-color: #FACC15;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.25);
+    transform: scale(1.01);
+  }
+
+  form textarea {
+    min-height: 120px;
+  }
+
+  form input[type="file"] {
+    display: block;
+    width: 100%;
+    font-size: 0.875rem;
+    color: #D1D5DB;
+  }
+
+  form input[type="file"]::file-selector-button {
+    margin-right: 1rem;
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    border: none;
+    font-size: 0.875rem;
+    font-weight: 600;
+    background-color: #4B5563;
+    color: #F9FAFB;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+  }
+
+  form input[type="file"]::file-selector-button:hover {
+    background-color: #6B7280;
+  }
+
+  form input[type="date"],
+  form input[type="time"] {
+    color-scheme: dark;
+  }
+</style>
+{% endblock %}

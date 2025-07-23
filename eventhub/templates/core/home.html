@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %}Big Bang Bashers - Curated Event Experiences{% endblock %}
+
+{% block content %}
+<style>
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes kenBurns {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.1); }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .animate-fade-in-up {
+      animation: fadeInUp 1s ease-out forwards;
+    }
+    .animate-ken-burns {
+      animation: kenBurns 20s infinite alternate ease-in-out;
+    }
+  }
+</style>
+
+
+
+
+<section class="relative h-[85vh] min-h-[600px] flex items-center justify-center text-center text-white overflow-hidden">
+  <div class="absolute inset-0 z-0">
+    <img src="{% static 'images/banner1.png' %}" 
+         alt="Elegant event lighting" 
+         class="h-full w-full object-cover animate-ken-burns">
+    <div class="absolute inset-0 bg-black/60"></div>
+  </div>
+  <div class="relative z-10 p-8">
+
+
+    <h1 class="text-5xl md:text-7xl font-heading tracking-wider text-white drop-shadow-md opacity-0 animate-fade-in-up" style="animation-delay: 200ms;">
+      Unforgettable Experiences
+    </h1>
+    <p class="mt-4 text-lg md:text-xl max-w-2xl mx-auto text-gray-300 opacity-0 animate-fade-in-up" style="animation-delay: 400ms;">
+      We craft moments that last a lifetime. Discover premier events organized with passion and precision.
+    </p>
+    <div class="mt-10 opacity-0 animate-fade-in-up" style="animation-delay: 600ms;">
+      <a href="{% url 'event_list' %}" class="inline-block bg-brand-yellow text-gray-900 font-bold py-3 px-10 rounded-full text-lg hover:bg-yellow-300 transition-all duration-300 transform hover:scale-105 shadow-lg">
+        Explore Our Events
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="bg-gray-950 py-20 md:py-28">
+  <div class="max-w-7xl mx-auto px-6 lg:px-8">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+      <div class="text-left">
+        <p class="font-semibold text-brand-yellow uppercase tracking-wider">Who We Are</p>
+        <h2 class="mt-2 text-4xl md:text-5xl font-bold font-heading tracking-wide">More Than Just Parties</h2>
+        <p class="mt-6 text-lg text-gray-400 leading-relaxed">
+          At Big Bang Bashers, we believe an event is a story waiting to be told. From intimate gatherings to grand celebrations, our focus is on creating a seamless and magical experience for every guest. We handle the details, so you can live the moment.
+        </p>
+      </div>
+      <div class="w-full h-80 lg:h-96">
+         <img src="{% static 'images/about_us.png' %}" 
+              alt="Friends enjoying an event" 
+              class="w-full h-full object-cover rounded-xl shadow-2xl">
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="bg-black py-20 md:py-28">
+  <div class="max-w-7xl mx-auto px-6 lg:px-8">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+       <div class="w-full h-[500px] order-last lg:order-first">
+         <img src="{{ latest_event.banner_image.url }}" 
+              alt="Poster for {{ latest_event.name }}" 
+              class="w-full h-full object-cover object-top rounded-xl shadow-2xl">
+      </div>
+      <div class="text-left">
+        <p class="font-semibold text-brand-yellow uppercase tracking-wider">Featured Event</p>
+        <h2 class="mt-2 text-4xl md:text-5xl font-bold font-heading tracking-wide">{{ latest_event.name }}</h2>
+        <div class="mt-6 flex flex-col space-y-3 text-gray-300">
+            <div class="flex items-center gap-3">
+                <i class="fas fa-calendar-day text-brand-yellow w-5"></i>
+                <span class="text-lg">{{ latest_event.date|date:"l, jS F Y" }}</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <i class="fas fa-map-marker-alt text-brand-yellow w-5"></i>
+                <span class="text-lg">{{ latest_event.venue }}</span>
+            </div>
+        </div>
+        <p class="mt-6 text-lg text-gray-400 leading-relaxed">
+          Kickstart your university journey at the most anticipated freshers party of the year. Join us for a night of electrifying music, amazing food, and unforgettable memories.
+        </p>
+        <div class="mt-10">
+          <a href="{% url 'event_detail' latest_event.pk %}" class="inline-block border border-brand-yellow text-brand-yellow font-bold py-3 px-10 rounded-full text-lg hover:bg-brand-yellow hover:text-gray-900 transition-all duration-300">
+            Learn More
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="bg-gray-950 py-20">
+    <div class="max-w-4xl mx-auto text-center px-4">
+      <h2 class="font-heading text-4xl md:text-5xl text-white tracking-wider">Ready to Join The Bash?</h2>
+      <p class="text-gray-400 text-lg mt-4 max-w-xl mx-auto">Your next unforgettable experience is just a click away. Explore our lineup of events or create an account to get started.</p>
+      <div class="mt-10 flex flex-col sm:flex-row justify-center items-center gap-4">
+        <a href="{% url 'event_list' %}" class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-bold rounded-full shadow-lg text-gray-900 bg-brand-yellow hover:bg-yellow-300 transition-all duration-300 transform hover:scale-105">
+            View All Events
+        </a>
+        <a href="{% url 'register' %}" class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3 border border-gray-700 text-base font-bold rounded-full text-white bg-gray-800/50 hover:border-gray-500 transition-all duration-300">
+            Create an Account
+        </a>
+      </div>
+    </div>
+</section>
+
+{% endblock %}
