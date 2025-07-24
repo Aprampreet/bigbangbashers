@@ -1,4 +1,6 @@
-from django.shortcuts import render, redirect, get_object_or_404,HttpResponse
+# core/views.py
+
+from django.shortcuts import render, redirect, get_object_or_404, HttpResponse
 from .models import Event, EventRegistration
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.forms import ModelForm
@@ -7,13 +9,15 @@ from django.contrib import messages
 from django.urls import reverse
 from django.utils import timezone
 from .tasks import send_email_async
+from celery.exceptions import OperationalError # Import the specific Celery exception
 import csv
-from urllib.parse import quote,urlencode
+from urllib.parse import quote, urlencode
 import logging
 
 logger = logging.getLogger(__name__)
 
 
+# ... (Your EventForm and other views remain the same) ...
 class EventForm(ModelForm):
     date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
     registration_end = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
@@ -89,6 +93,8 @@ def event_create_view(request):
         form = EventForm()
     return render(request, 'core/event_form.html', {'form': form, 'form_title': 'Create New Event'})
 
+
+
 @login_required
 def event_register_view(request, pk):
     event = get_object_or_404(Event, pk=pk)
@@ -113,20 +119,10 @@ def event_register_view(request, pk):
             registration = form.save(commit=False)
             registration.user = request.user
             registration.event = event
-            registration.save()
-
-            user_email = registration.email
-            admin_email = event.admin.email
-            your_email = "bigbangbashers@gmail.com"
-
-            event_details = (
-                f"Event Name: {event.name}\n"
-                f"Date: {event.date.strftime('%A, %B %d, %Y')}\n"
-                f"Time: {event.time.strftime('%I:%M %p')}\n"
-                f"Venue: {event.venue}\n"
-            )
+            registration.save() # Save to PostgreSQL is safe
 
             try:
+                # Attempt to send both emails
                 # Confirmation email to user
                 send_email_async.delay(
                     subject=f"🎉 Registration Confirmed – {event.name}",
@@ -140,7 +136,7 @@ def event_register_view(request, pk):
                         f"WhatsApp Group: {registration.event.whatsapp_group}\n\n"
                         f"See you there!\n\nTeam BBB."
                     ),
-                    recipient_list=[user_email],
+                    recipient_list=[registration.email],
                 )
 
                 # Admin notification
@@ -149,20 +145,19 @@ def event_register_view(request, pk):
                     message=(
                         f"Registrant Details:\n"
                         f"- Name: {registration.Student_name}\n"
-                        f"- Email: {user_email}\n"
+                        f"- Email: {registration.email}\n"
                         f"- Phone: {registration.phone}\n"
                         f"- Department: {registration.department}\n"
                         f"- Year: {registration.year}\n"
-                        f"- Course: {registration.course}\n\n"
-                        f"{event_details}"
+                        f"- Course: {registration.course}\n"
                     ),
-                    recipient_list=[your_email],
+                    recipient_list=[event.admin.email],
                 )
-
-                messages.success(request, 'Successfully registered! Confirmation email sent.')
-            except Exception as e:
-                logger.error(f"Error sending email via Celery: {e}")
-                messages.warning(request, 'Registered, but email sending failed.')
+                messages.success(request, 'Successfully registered! A confirmation email has been sent.')
+            except OperationalError as e:
+                # This block runs ONLY if Redis is down
+                logger.error(f"Celery email task failed for event registration {registration.id}: {e}")
+                messages.warning(request, 'You are registered, but we couldn’t send the confirmation email due to a connection issue.')
 
             return redirect('my_registrations')
     else:
@@ -175,6 +170,8 @@ def event_register_view(request, pk):
         'qr_code_url': qr_code_url,
     })
 
+
+# ... (Your other views remain the same) ...
 @login_required
 def my_registrations_view(request):
     registrations = EventRegistration.objects.filter(user=request.user).order_by('-registration_date')
