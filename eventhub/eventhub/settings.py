@@ -78,15 +78,12 @@ DATABASES = {
 
 # --- Static and Media Files ---
 
-# Static files (CSS, JavaScript, Images) for the app's design
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'  # 'collectstatic' will copy files here for production
 
 # Media files (User-uploaded content)
 MEDIA_URL = '/media/'
-# This will default to a 'media' folder in your project root for local development.
-# For Render, you will set the MEDIA_ROOT environment variable to your persistent disk path (e.g., /var/data/media).
 MEDIA_ROOT = os.environ.get('MEDIA_ROOT', BASE_DIR / 'media')
 
 # Modern Django (4.2+) way to configure file storages
