@@ -29,7 +29,7 @@ DEBUG = os.environ.get("DEBUG", "False") == "True"
 
 # your_project/settings.py
 
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
+ALLOWED_HOSTS = ['127.0.0.1']
 
 
 
@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'accounts',
     'core',
+    'cloudinary',
+    'cloudinary_storage',
 ]
 JAZZMIN_SETTINGS = {
     "site_title": "EventHub Admin",
@@ -157,9 +159,17 @@ STATICFILES_DIRS = [
     BASE_DIR / 'static'
 ]
 
-# Media files (user uploaded content)
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+# Cloudinary Config
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.getenv("CLOUDINARY_CLOUD_NAME"),
+    'API_KEY': os.getenv("CLOUDINARY_API_KEY"),
+    'API_SECRET': os.getenv("CLOUDINARY_API_SECRET"),
+}
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -191,4 +201,8 @@ STATICFILES_DIRS = [
 
 STATIC_ROOT = BASE_DIR / 'staticfiles'  # Used for collectstatic during deployment
 
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# Just for testing
+DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'

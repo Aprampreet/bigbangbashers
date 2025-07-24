@@ -9,7 +9,9 @@ from django.utils import timezone
 from .tasks import send_email_async
 import csv
 from urllib.parse import quote,urlencode
+import logging
 
+logger = logging.getLogger(__name__)
 
 
 class EventForm(ModelForm):
@@ -90,10 +92,11 @@ def event_create_view(request):
 @login_required
 def event_register_view(request, pk):
     event = get_object_or_404(Event, pk=pk)
-    
+
     if not event.is_registration_open:
         messages.error(request, "Registration for this event has closed.")
         return redirect('event_detail', pk=event.pk)
+
     upi_link = f"upi://pay?{urlencode({
         'pa': '7855800005@ptaxis',
         'pn': request.user.username,
@@ -101,76 +104,76 @@ def event_register_view(request, pk):
         'cu': 'INR'
     })}"
 
-    # For Google Charts QR (note: single slash after upi:)
     qr_payload = upi_link.replace("upi://", "upi:/")
     qr_code_url = f"https://chart.googleapis.com/chart?chs=180x180&cht=qr&chl={quote(qr_payload)}"
 
     if request.method == 'POST':
         form = EventRegistrationForm(request.POST, request.FILES)
         if form.is_valid():
-
             registration = form.save(commit=False)
             registration.user = request.user
             registration.event = event
             registration.save()
+
             user_email = registration.email
             admin_email = event.admin.email
             your_email = "bigbangbashers@gmail.com"
 
             event_details = (
-            f"Event Name: {event.name}\n"
-            f"Date: {event.date.strftime('%A, %B %d, %Y')}\n"
-            f"Time: {event.time.strftime('%I:%M %p')}\n"
-            f"Venue: {event.venue}\n"
-        )
-
-            # Email to user (confirmation)
-            send_email_async.delay(
-            subject=f"🎉 Registration Confirmed – {event.name}",
-            message=(
-                f"Hi {registration.Student_name},\n\n"
-                f"🎊 You’ve successfully registered for *{event.name}*! We’re thrilled to have you with us.\n\n"
-                f"📅 **Event Details:**\n"
-                f"• Event: {event.name}\n"
-                f"• Date: {event.date.strftime('%A, %d %B %Y')}\n"
-                f"• Time: {event.time.strftime('%I:%M %p')}\n"
-                f"• Venue: {event.venue}\n\n"
-                f"📢 *Stay connected with all event updates, reminders, and announcements!*\n"
-                f"Join our official WhatsApp group:\n👉 {registration.event.whatsapp_group}\n\n"
-                f"📝 Save the date and keep an eye on your inbox — we’ll be sending reminders as the event approaches.\n\n"
-                f"If you have any questions, feel free to reach out.\n\n"
-                f"Best regards,\n"
-                f"Team EventHub – Big Bang Bashers"
-            ),
-            recipient_list=[user_email],
-        )
-
-
-            # Email to your central inbox
-            send_email_async.delay(
-                subject=f"🔔 New Registration Notification – {event.name}",
-                message=(
-                    f"A participant has registered for the event \"{event.name}\".\n\n"
-                    f"👤 **Registrant Details:**\n"
-                    f"- Name: {registration.Student_name}\n"
-                    f"- Email: {user_email}\n"
-                    f"- Phone: {registration.phone}\n"
-                    f"- Department: {registration.department}\n"
-                    f"- Year: {registration.year}\n"
-                    f"- Course: {registration.course}\n\n"
-                    f"**Event Info:**\n{event_details}\n"
-                ),
-                recipient_list=["bigbangbashers@gmail.com"],
+                f"Event Name: {event.name}\n"
+                f"Date: {event.date.strftime('%A, %B %d, %Y')}\n"
+                f"Time: {event.time.strftime('%I:%M %p')}\n"
+                f"Venue: {event.venue}\n"
             )
 
+            try:
+                # Confirmation email to user
+                send_email_async.delay(
+                    subject=f"🎉 Registration Confirmed – {event.name}",
+                    message=(
+                        f"Hi {registration.Student_name},\n\n"
+                        f"You’ve successfully registered for *{event.name}*! 🎊\n\n"
+                        f"📅 Event Details:\n"
+                        f"• Date: {event.date.strftime('%A, %d %B %Y')}\n"
+                        f"• Time: {event.time.strftime('%I:%M %p')}\n"
+                        f"• Venue: {event.venue}\n\n"
+                        f"WhatsApp Group: {registration.event.whatsapp_group}\n\n"
+                        f"See you there!\n\nTeam BBB."
+                    ),
+                    recipient_list=[user_email],
+                )
 
+                # Admin notification
+                send_email_async.delay(
+                    subject=f"🔔 New Registration – {event.name}",
+                    message=(
+                        f"Registrant Details:\n"
+                        f"- Name: {registration.Student_name}\n"
+                        f"- Email: {user_email}\n"
+                        f"- Phone: {registration.phone}\n"
+                        f"- Department: {registration.department}\n"
+                        f"- Year: {registration.year}\n"
+                        f"- Course: {registration.course}\n\n"
+                        f"{event_details}"
+                    ),
+                    recipient_list=[your_email],
+                )
 
+                messages.success(request, 'Successfully registered! Confirmation email sent.')
+            except Exception as e:
+                logger.error(f"Error sending email via Celery: {e}")
+                messages.warning(request, 'Registered, but email sending failed.')
 
-            messages.success(request, 'Successfully registered for the event! A confirmation email has been sent.')
-            return redirect('my_registrations') 
+            return redirect('my_registrations')
     else:
         form = EventRegistrationForm()
-    return render(request, 'core/event_register.html', {'form': form, 'event': event,'upi_link': upi_link,'qr_code_url': qr_code_url,})
+
+    return render(request, 'core/event_register.html', {
+        'form': form,
+        'event': event,
+        'upi_link': upi_link,
+        'qr_code_url': qr_code_url,
+    })
 
 @login_required
 def my_registrations_view(request):
