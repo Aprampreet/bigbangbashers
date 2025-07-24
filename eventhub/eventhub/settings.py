@@ -3,23 +3,24 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
-import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Load environment variables from .env file for local development
-load_dotenv()
+# This will load your .env file on the server
+load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 # --- Core Security & Deployment Settings ---
 
 SECRET_KEY = os.environ.get("SECRET_KEY")
-DEBUG = os.environ.get("DEBUG", "False") == "True"
 
-# Reads from DJANGO_ALLOWED_HOSTS environment variable (e.g., "your-app.onrender.com,localhost")
-ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
-# For modern Django, you should also set CSRF_TRUSTED_ORIGINS for production
-CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS", "http://127.0.0.1,http://localhost").split(",")
+# DEBUG must be False in production
+DEBUG = False
+
+# Replace 'yourusername' with your actual PythonAnywhere username
+ALLOWED_HOSTS = ['bigbangbashers.pythonanywhere.com']
+CSRF_TRUSTED_ORIGINS = ['https://bigbangbashers.pythonanywhere.com']
+
 
 # --- Application Definition ---
 
@@ -37,7 +38,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    # WhiteNoise is not needed on PythonAnywhere
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -67,43 +68,37 @@ TEMPLATES = [
 WSGI_APPLICATION = 'eventhub.wsgi.application'
 
 # --- Database ---
-# Uses DATABASE_URL from environment for production (e.g., PostgreSQL on Render)
-# Falls back to local sqlite3 for development if DATABASE_URL is not set.
+# Configure this with your MySQL details from the PythonAnywhere "Databases" tab
 DATABASES = {
-    'default': dj_database_url.config(
-        default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
-        conn_max_age=600
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'bigbangbashers$eventhubdb', # e.g., 'aprampreet$eventhubdb'
+        'USER': 'bigbangbashers',                 # e.g., 'aprampreet'
+        'PASSWORD': 'bigbangbashersport8000',      # The password you set on the Databases tab
+        'HOST': 'bigbangbashers.mysql.pythonanywhere-services.com',
+        'PORT': '3306',
+    }
 }
+
 
 # --- Static and Media Files ---
 
+# Static files (CSS, JavaScript)
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']
-STATIC_ROOT = BASE_DIR / 'staticfiles'  # 'collectstatic' will copy files here for production
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Media files (User-uploaded content)
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.environ.get('MEDIA_ROOT', BASE_DIR / 'media')
+MEDIA_ROOT = BASE_DIR / 'media'
 
-# Modern Django (4.2+) way to configure file storages
-STORAGES = {
-    "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
-    },
-    "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-    },
-}
 
 # --- Other Settings ---
 
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/login/'
 
-CELERY_BROKER_URL = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
+# Celery/Redis is not supported on the PythonAnywhere free tier
+# CELERY_BROKER_URL = os.environ.get("REDIS_URL")
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
